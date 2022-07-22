@@ -7,7 +7,7 @@ Current
 <ul>
     {% for todo in todos %}
     <li>
-        <a href="{% url 'view_todos' todo.id  %}">
+        <a href="{% url 'view_todo' todo.id  %}">
             {% if todo.important %} <b> {% endif %}{{ todo.title }} {% if todo.important %} </b> {% endif %}
 
             {% if todo.memo %} - {{ todo.memo }} {% endif %}

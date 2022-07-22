@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from .forms import TodoForm
 from .models import Todo
+from django.utils import timezone
 
 
 def home(request):
@@ -70,15 +71,30 @@ def current_todos(request):
     return render(request, 'todoapp/current_todos.html', {'todos': todos})
 
 
-def view_todos(request, todo_pk):
+def view_todo(request, todo_pk):
     todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
     if request.method == 'GET':
         form = TodoForm(instance=todo)
-        return render(request, 'todoapp/view_todos.html', {'todo': todo, 'form':form})
+        return render(request, 'todoapp/view_todo.html', {'todo': todo, 'form': form})
     else:
         try:
             form = TodoForm(request.POST, instance=todo)
             form.save()
             return redirect('current_todos')
         except ValueError:
-            return render(request, 'todoapp/view_todos.html', {'todo': todo, 'form': form, 'error': 'Bad info'})
+            return render(request, 'todoapp/view_todo.html', {'todo': todo, 'form': form, 'error': 'Bad info'})
+
+
+def complete_todo(request, todo_pk):
+    todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
+    if request.method == 'POST':
+        todo.date_completed = timezone.now()
+        todo.save()
+        return redirect('current_todos')
+
+
+def delete_todo(request, todo_pk):
+    todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
+    if request.method == 'POST':
+        todo.delete()
+        return redirect('current_todos')
