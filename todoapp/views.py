@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -29,11 +29,6 @@ def signup_user(request):
         else:
             return render(request, 'todoapp/signup_user.html',
                           {'form': UserCreationForm(), 'error': 'Passwords did not match'})
-
-
-def current_todos(request):
-    todos = Todo.objects.filter(user=request.user, date_completed__isnull=True)
-    return render(request, 'todoapp/current_todos.html', {'todos': todos})
 
 
 def login_user(request):
@@ -68,3 +63,22 @@ def create_todo(request):
         except ValueError:
             return render(request, 'todoapp/create_todo.html',
                           {'form': TodoForm(), 'error': 'Bad data passed in. Try again.'})
+
+
+def current_todos(request):
+    todos = Todo.objects.filter(user=request.user, date_completed__isnull=True)
+    return render(request, 'todoapp/current_todos.html', {'todos': todos})
+
+
+def view_todos(request, todo_pk):
+    todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
+    if request.method == 'GET':
+        form = TodoForm(instance=todo)
+        return render(request, 'todoapp/view_todos.html', {'todo': todo, 'form':form})
+    else:
+        try:
+            form = TodoForm(request.POST, instance=todo)
+            form.save()
+            return redirect('current_todos')
+        except ValueError:
+            return render(request, 'todoapp/view_todos.html', {'todo': todo, 'form': form, 'error': 'Bad info'})
