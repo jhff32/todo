@@ -26,7 +26,9 @@ urlpatterns = [
     path('login/', views.login_user, name='login_user'),
 
     # Todos
-    path('current/', views.current_todos, name='current_todos'),
     path('', views.current_todos, name='home'),
+    path('create', views.create_todo, name='create_todo'),
+    path('current/', views.current_todos, name='current_todos'),
+
 
 ]
